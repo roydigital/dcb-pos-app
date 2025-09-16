@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers - DCB POS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+    <div class="flex flex-col h-screen">
+        <!-- Header -->
+        <header class="bg-gray-800 p-4 flex justify-between items-center shadow-md">
+            <h1 class="text-2xl font-bold text-white">DELHI CHICKEN BROTHERS</h1>
+            <div id="current-time" class="text-lg font-semibold text-gray-300"></div>
+        </header>
+
+        <!-- Navigation Bar -->
+        <nav class="bg-gray-800 border-t border-b border-gray-700">
+            <div class="flex">
+                <a href="index.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Point of Sale</a>
+                <a href="live-orders.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Live Orders</a>
+                <a href="reports.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Reports</a>
+                <a href="customers.html" class="px-6 py-3 text-lg font-medium bg-red-600 text-white border-r border-gray-700">Customers</a>
+                <a href="menu-management.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700">Menu Management</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-6">
+            <h2 class="text-3xl font-bold text-white mb-6">Customer Management</h2>
+            <!-- Customer management content will go here -->
+             <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+                <p class="text-center text-gray-400">Customer management functionality will be implemented here.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function updateTime() {
+            const timeEl = document.getElementById('current-time');
+            const now = new Date();
+            timeEl.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        }
+
+        // Initial calls
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>

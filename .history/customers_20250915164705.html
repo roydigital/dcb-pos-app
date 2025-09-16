@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Directory</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">DCB POS</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/index.html">Live Orders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menu-management.html">Menu Management</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/reports.html">Reports</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/customers.html">Customers <span class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Customer Directory</h1>
+        <button id="export-btn" class="btn btn-primary mb-3">Export to CSV</button>
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Customer Since</th>
+                    <th>Last Ordered</th>
+                    <th>Total Orders</th>
+                </tr>
+            </thead>
+            <tbody id="customer-table-body">
+                <!-- Customer data will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchAndDisplayCustomers);
+
+        async function fetchAndDisplayCustomers() {
+            try {
+                const response = await fetch('/api/customers');
+                const customers = await response.json();
+                const tableBody = document.getElementById('customer-table-body');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                customers.forEach(customer => {
+                    const row = document.createElement('tr');
+                    
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = customer.name;
+                    row.appendChild(nameCell);
+
+                    const phoneCell = document.createElement('td');
+                    phoneCell.textContent = customer.phone;
+                    row.appendChild(phoneCell);
+
+                    const sinceCell = document.createElement('td');
+                    sinceCell.textContent = new Date(customer.createdAt).toLocaleDateString();
+                    row.appendChild(sinceCell);
+
+                    const lastOrderedCell = document.createElement('td');
+                    lastOrderedCell.textContent = customer.lastOrdered ? new Date(customer.lastOrdered).toLocaleDateString() : 'N/A';
+                    row.appendChild(lastOrderedCell);
+
+                    const totalOrdersCell = document.createElement('td');
+                    totalOrdersCell.textContent = customer.totalOrders;
+                    row.appendChild(totalOrdersCell);
+
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching customers:', error);
+            }
+        }
+
+        document.getElementById('export-btn').addEventListener('click', () => {
+            window.location.href = '/api/customers/export';
+        });
+    </script>
+</body>
+</html>
