@@ -331,7 +331,7 @@
             }
 
             try {
-                const response = await fetch(`/api/customers/search?q=${encodeURIComponent(searchText)}`);
+                const response = await fetch(`http://localhost:3004/api/customers/search?q=${encodeURIComponent(searchText)}`);
                 if (!response.ok) {
                     throw new Error('Customer search failed');
                 }

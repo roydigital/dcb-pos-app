@@ -368,7 +368,7 @@
             }
 
             try {
-                const response = await fetch('/api/menu/bulk-update-prices', {
+                const response = await fetch('http://localhost:3004/api/menu/bulk-update-prices', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ percentage, direction })
