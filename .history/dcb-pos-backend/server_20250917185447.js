@@ -347,26 +347,23 @@ app.get('/api/reports', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
 
-    let start;
-    let end;
+    let start, end;
 
-    if (startDate && endDate) {
-      // Both dates provided
+    if (startDate) {
       start = new Date(startDate);
       start.setHours(0, 0, 0, 0);
-      end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-    } else if (startDate) {
-      // Only start date provided, report for a single day
-      start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
-      end = new Date(startDate);
-      end.setHours(23, 59, 59, 999);
     } else {
-      // No dates provided, default to today
+      // Default to the start of the current day if no start date is provided
       start = new Date();
       start.setHours(0, 0, 0, 0);
-      end = new Date();
+    }
+
+    if (endDate) {
+      end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+    } else {
+      // If no end date is provided, default to the end of the start date (for a single-day report)
+      end = new Date(start);
       end.setHours(23, 59, 59, 999);
     }
 
@@ -375,26 +372,7 @@ app.get('/api/reports', async (req, res) => {
       status: 'delivered',
     });
 
-    const totalRevenue = deliveredOrders.reduce((sum, order) => sum + order.totalAmount, 0);
-    const orderCount = deliveredOrders.length;
-    const paymentBreakdown = deliveredOrders.reduce((acc, order) => {
-      const mode = order.paymentMode.toLowerCase();
-      if (!acc[mode]) {
-        acc[mode] = 0;
-      }
-      acc[mode] += order.totalAmount;
-      return acc;
-    }, {});
-
-    res.json({
-      totalRevenue,
-      orderCount,
-      paymentBreakdown,
-      orders: deliveredOrders,
-    });
-  } catch (error) {
-    console.error("Error fetching sales report:", error);
-    res.status(500).json({ message: "Failed to fetch sales report" });
+    res.status(500).json({ message: "Failed to fetch today's sales report" });
   }
 });
 

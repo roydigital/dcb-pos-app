@@ -12,6 +12,33 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        @media print {
+  body * {
+    visibility: hidden;
+  }
+  #receipt-to-print, #receipt-to-print * {
+    visibility: visible !important;
+  }
+  #receipt-to-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 10pt;
+    color: #000;
+  }
+  .receipt-header, .receipt-total { text-align: center; }
+  .receipt-header h1 { margin: 5px 0; font-size: 14pt; }
+  .receipt-header p { margin: 2px 0; font-size: 9pt; }
+  .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .items-table th, .items-table td { padding: 3px; }
+  .items-table th { border-bottom: 1px dashed #000; }
+  .summary-table { width: 100%; margin-top: 10px; }
+  .summary-table td { padding: 2px; }
+  .text-right { text-align: right; }
+  hr.dashed { border-top: 1px dashed #000; }
+}
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200">
@@ -96,6 +123,9 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <div id="receipt-to-print" class="hidden">
     </div>
 
     <script>
@@ -313,114 +343,72 @@
         }
 
 function printReceipt(orderData) {
-  // --- NEW INCLUSIVE GST CALCULATIONS ---
-  const grandTotal = orderData.totalAmount;
-  const preTaxTotal = grandTotal / 1.05;
-  const gstAmount = grandTotal - preTaxTotal;
+  const receiptContainer = document.getElementById('receipt-to-print');
 
-  // --- CUSTOMER RECEIPT - ITEM ROWS ---
-  const customerItemRows = orderData.items.map(item => `
+  // Calculations
+  const subtotal = orderData.totalAmount;
+  const gstRate = 0.05; // 5% GST
+  const gstAmount = subtotal * gstRate;
+  const grandTotal = subtotal + gstAmount;
+
+  // Create the item rows for the table
+  const itemRows = orderData.items.map(item => `
     <tr>
-      <td style="text-align: left;">${item.quantity}x ${item.name}</td>
-      <td style="text-align: right;">₹${(item.price * item.quantity).toFixed(2)}</td>
+      <td>${item.quantity}x</td>
+      <td>${item.name}</td>
+      <td class="text-right">₹${(item.price * item.quantity).toFixed(2)}</td>
     </tr>
   `).join('');
 
-  // --- KITCHEN TICKET - ITEM ROWS (NO PRICES) ---
-  const kitchenItemRows = orderData.items.map(item => `
-    <tr>
-      <td style="font-size: 14pt; font-weight: bold;">${item.quantity}x</td>
-      <td style="font-size: 14pt;">${item.name}</td>
-    </tr>
-  `).join('');
-
-  // --- CREATE THE FULL HTML FOR THE NEW WINDOW ---
+  // Create the full receipt HTML
   const receiptHtml = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Receipt</title>
-        <style>
-          body { width: 80mm; font-family: 'Courier New', monospace; font-size: 10pt; color: #000; }
-          .header, .totals-section { text-align: center; }
-          .header h1 { margin: 5px 0; font-size: 14pt; }
-          .header p { margin: 2px 0; font-size: 9pt; }
-          .items-table, .summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-          .items-table th, .summary-table td { padding: 3px; }
-          .items-table th { border-bottom: 1px dashed #000; }
-          .kitchen-items-table td { padding: 4px 2px; }
-          .text-right { text-align: right; }
-          hr.dashed { border-top: 1px dashed #000; margin: 10px 0; }
-          .cut-here { text-align: center; font-size: 9pt; margin: 40px 0; padding: 10px 0; border-top: 2px dashed #000; border-bottom: 2px dashed #000; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>Delhi Chicken Brothers</h1>
-          <p>Shop 6, Aar City Regency, Gaur City 2</p>
-          <p>Uttar Pradesh 201009</p>
-          <p>GSTIN: 09ALRPR8561K2Z0</p>
-          <p>Mobile: 9211022131</p>
-        </div>
-        <hr class="dashed">
-        <p>Order #: ${orderData.orderNumber}</p>
-        <p>Date: ${new Date(orderData.createdAt).toLocaleString('en-IN')}</p>
-        <hr class="dashed">
-        <table class="items-table">
-          <thead>
-            <tr>
-              <th style="text-align: left;">Item</th>
-              <th style="text-align: right;">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${customerItemRows}
-          </tbody>
-        </table>
-        <hr class="dashed">
-        <table class="summary-table">
-          <tbody>
-            <tr>
-              <td>Total:</td>
-              <td class="text-right">₹${grandTotal.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td style="font-size: 8pt;">(Includes GST @ 5%):</td>
-              <td class="text-right" style="font-size: 8pt;">₹${gstAmount.toFixed(2)}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="totals-section" style="margin-top: 10px;">
-            <p>Thank you for your order!</p>
-        </div>
-        <div class="cut-here">
-          --- < CUT HERE > ---
-        </div>
-
-        <div class="header">
-            <h1 style="font-size: 18pt;">KITCHEN TICKET</h1>
-            <p style="font-size: 14pt;">Order #: ${orderData.orderNumber}</p>
-            <p style="font-size: 9pt;">${new Date(orderData.createdAt).toLocaleTimeString('en-IN')}</p>
-        </div>
-        <hr class="dashed">
-        <table class="kitchen-items-table">
-            <tbody>
-                ${kitchenItemRows}
-            </tbody>
-        </table>
-        </body>
-    </html>
+    <div class="receipt-header">
+      <h1>Delhi Chicken Brothers</h1>
+      <p>Shop 6, Aar City Regency, Gaur City 2</p>
+      <p>Uttar Pradesh 201009</p>
+      <p>GSTIN: 09ALRPR8561K2Z0</p>
+    </div>
+    <hr class="dashed">
+    <p>Order #: ${orderData.orderNumber}</p>
+    <p>Date: ${new Date(orderData.createdAt).toLocaleString()}</p>
+    <hr class="dashed">
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Qty</th>
+          <th>Item</th>
+          <th class="text-right">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemRows}
+      </tbody>
+    </table>
+    <hr class="dashed">
+    <table class="summary-table">
+      <tbody>
+        <tr>
+          <td>Subtotal:</td>
+          <td class="text-right">₹${subtotal.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td>GST (5%):</td>
+          <td class="text-right">₹${gstAmount.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">Grand Total:</td>
+          <td class="text-right" style="font-weight: bold;">₹${grandTotal.toFixed(2)}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="receipt-total" style="margin-top: 10px;">
+        <p>Thank you for your order!</p>
+    </div>
   `;
 
-  // --- Use the New Window Method to Print ---
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(receiptHtml);
-  printWindow.document.close();
-  printWindow.focus();
-  setTimeout(() => {
-    printWindow.print();
-    printWindow.close();
-  }, 250);
+  // Set the HTML and print
+  receiptContainer.innerHTML = receiptHtml;
+  window.print();
 }
 
         document.getElementById('clear-order-btn').addEventListener('click', () => {

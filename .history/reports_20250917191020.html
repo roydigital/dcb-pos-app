@@ -109,57 +109,27 @@
     </div>
 
     <script>
-        const reportHeading = document.getElementById('report-heading');
-        const totalRevenueEl = document.getElementById('total-revenue');
-        const orderCountEl = document.getElementById('order-count');
-        const upiTotalEl = document.getElementById('upi-total');
-        const cashTotalEl = document.getElementById('cash-total');
-        const tableBody = document.getElementById('report-table-body');
-        const startDateInput = document.getElementById('start-date');
-        const endDateInput = document.getElementById('end-date');
-
-        function formatDate(date) {
-            return date.toISOString().split('T')[0];
-        }
-
-        function updateHeading(startDate, endDate) {
-            const startStr = startDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-            const endStr = endDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-            if (startStr === endStr) {
-                if (formatDate(startDate) === formatDate(new Date())) {
-                    reportHeading.textContent = "Today's Sales Report";
-                } else {
-                    reportHeading.textContent = `Sales Report for ${startStr}`;
-                }
-            } else {
-                reportHeading.textContent = `Sales Report: ${startStr} to ${endStr}`;
-            }
-        }
-
-        async function generateReport(startDate, endDate) {
-            const startDateStr = formatDate(startDate);
-            const endDateStr = formatDate(endDate);
-            
-            updateHeading(startDate, endDate);
-
+        async function fetchSalesReport() {
             try {
-                const response = await fetch(`/api/reports?startDate=${startDateStr}&endDate=${endDateStr}`);
+                const response = await fetch('/api/reports/today');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
 
                 // Update stat cards
-                totalRevenueEl.textContent = `₹${data.totalRevenue.toFixed(2)}`;
-                orderCountEl.textContent = data.orderCount;
-                upiTotalEl.textContent = `₹${(data.paymentBreakdown.upi || 0).toFixed(2)}`;
-                cashTotalEl.textContent = `₹${(data.paymentBreakdown.cash || 0).toFixed(2)}`;
+                document.getElementById('total-revenue').textContent = `₹${data.totalRevenue.toFixed(2)}`;
+                document.getElementById('order-count').textContent = data.orderCount;
+                document.getElementById('upi-total').textContent = `₹${(data.paymentBreakdown.upi || 0).toFixed(2)}`;
+                document.getElementById('cash-total').textContent = `₹${(data.paymentBreakdown.cash || 0).toFixed(2)}`;
 
                 // Populate table
+                const tableBody = document.getElementById('report-table-body');
                 tableBody.innerHTML = ''; // Clear existing rows
 
                 if (data.orders.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500">No delivered orders found for the selected period.</td></tr>`;
+                    const row = `<tr><td colspan="4" class="text-center py-4 text-gray-500">No delivered orders found for today.</td></tr>`;
+                    tableBody.innerHTML = row;
                     return;
                 }
 
@@ -178,6 +148,7 @@
 
             } catch (error) {
                 console.error('Failed to fetch sales report:', error);
+                const tableBody = document.getElementById('report-table-body');
                 tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-red-500">Error loading report. Please check the console.</td></tr>`;
             }
         }
@@ -187,77 +158,9 @@
             const now = new Date();
             timeEl.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
         }
-        
-        function setupEventListeners() {
-            document.getElementById('btn-today').addEventListener('click', () => {
-                const today = new Date();
-                generateReport(today, today);
-            });
-
-            document.getElementById('btn-yesterday').addEventListener('click', () => {
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                generateReport(yesterday, yesterday);
-            });
-
-            document.getElementById('btn-last-7-days').addEventListener('click', () => {
-                const endDate = new Date();
-                const startDate = new Date();
-                startDate.setDate(startDate.getDate() - 6);
-                generateReport(startDate, endDate);
-            });
-
-            document.getElementById('btn-this-week').addEventListener('click', () => {
-                const today = new Date();
-                const dayOfWeek = today.getDay(); // Sunday = 0, Monday = 1, etc.
-                const startDate = new Date(today);
-                startDate.setDate(today.getDate() - dayOfWeek);
-                const endDate = new Date(startDate);
-                endDate.setDate(startDate.getDate() + 6);
-                generateReport(startDate, endDate);
-            });
-
-            document.getElementById('btn-last-week').addEventListener('click', () => {
-                const today = new Date();
-                const dayOfWeek = today.getDay();
-                const endDate = new Date(today);
-                endDate.setDate(today.getDate() - dayOfWeek - 1);
-                const startDate = new Date(endDate);
-                startDate.setDate(endDate.getDate() - 6);
-                generateReport(startDate, endDate);
-            });
-
-            document.getElementById('btn-last-30-days').addEventListener('click', () => {
-                const endDate = new Date();
-                const startDate = new Date();
-                startDate.setDate(startDate.getDate() - 29);
-                generateReport(startDate, endDate);
-            });
-
-            document.getElementById('btn-this-month').addEventListener('click', () => {
-                const today = new Date();
-                const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                generateReport(startDate, endDate);
-            });
-
-            document.getElementById('btn-generate').addEventListener('click', () => {
-                const startDate = startDateInput.value;
-                const endDate = endDateInput.value;
-                if (startDate && endDate) {
-                    generateReport(new Date(startDate), new Date(endDate));
-                } else {
-                    alert('Please select both a start and end date.');
-                }
-            });
-        }
 
         // Initial calls
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date();
-            generateReport(today, today);
-            setupEventListeners();
-        });
+        document.addEventListener('DOMContentLoaded', fetchSalesReport);
         updateTime();
         setInterval(updateTime, 1000);
     </script>

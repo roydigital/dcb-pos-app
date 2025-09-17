@@ -342,36 +342,14 @@ app.patch('/api/orders/:id/deliver', async (req, res) => {
   }
 });
 
-// Route to get a sales report for a given date range
-app.get('/api/reports', async (req, res) => {
+// Route to get a sales report for today
+app.get('/api/reports/today', async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
-
-    let start;
-    let end;
-
-    if (startDate && endDate) {
-      // Both dates provided
-      start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
-      end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-    } else if (startDate) {
-      // Only start date provided, report for a single day
-      start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
-      end = new Date(startDate);
-      end.setHours(23, 59, 59, 999);
-    } else {
-      // No dates provided, default to today
-      start = new Date();
-      start.setHours(0, 0, 0, 0);
-      end = new Date();
-      end.setHours(23, 59, 59, 999);
-    }
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
 
     const deliveredOrders = await Order.find({
-      createdAt: { $gte: start, $lte: end },
+      createdAt: { $gte: startOfToday },
       status: 'delivered',
     });
 
@@ -393,8 +371,8 @@ app.get('/api/reports', async (req, res) => {
       orders: deliveredOrders,
     });
   } catch (error) {
-    console.error("Error fetching sales report:", error);
-    res.status(500).json({ message: "Failed to fetch sales report" });
+    console.error("Error fetching today's sales report:", error);
+    res.status(500).json({ message: "Failed to fetch today's sales report" });
   }
 });
 
