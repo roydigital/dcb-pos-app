@@ -187,16 +187,6 @@
         const upiTotalEl = document.getElementById('upi-total');
         const cashTotalEl = document.getElementById('cash-total');
         const cogsTotalEl = document.getElementById('cogs-total');
-        const grossProfitEl = document.getElementById('gross-profit');
-        const tableBody = document.getElementById('report-table-body');
-        const startDateInput = document.getElementById('start-date');
-        const endDateInput = document.getElementById('end-date');
-
-        function formatDate(date) {
-            return date.toISOString().split('T')[0];
-        }
-
-        function updateHeading(startDate, endDate) {
             const startStr = startDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
             const endStr = endDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
             if (startStr === endStr) {
@@ -227,8 +217,6 @@
                 // Update stat cards
                 totalRevenueEl.textContent = `₹${data.totalRevenue.toFixed(2)}`;
                 orderCountEl.textContent = data.orderCount;
-                cogsTotalEl.textContent = `₹${data.costOfGoodsSold.toFixed(2)}`;
-                grossProfitEl.textContent = `₹${data.grossProfit.toFixed(2)}`;
                 upiTotalEl.textContent = `₹${(data.paymentBreakdown.upi || 0).toFixed(2)}`;
                 cashTotalEl.textContent = `₹${(data.paymentBreakdown.cash || 0).toFixed(2)}`;
 

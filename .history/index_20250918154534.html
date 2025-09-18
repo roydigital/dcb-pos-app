@@ -29,8 +29,7 @@
                 <a href="live-orders.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Live Orders</a>
                 <a href="reports.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Reports</a>
                 <a href="customers.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Customers</a>
-                <a href="menu-management.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Menu Management</a>
-                <a href="inventory.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700">Inventory</a>
+                <a href="menu-management.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700">Menu Management</a>
             </div>
         </nav>
 
@@ -68,14 +67,10 @@
                         <input type="tel" id="phone-number" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-red-500 focus:border-red-500">
                     </div>
                     <div>
-                        <label for="order-notes" class="block text-sm font-medium text-gray-400">Add Note (Optional)</label>
+                        <label for="order-notes" class="block text-sm font-medium text-gray-400">Order Notes (Optional)</label>
                         <textarea id="order-notes" rows="3" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-red-500 focus:border-red-500"></textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-400">Payment Mode</label>
-                        <div class="mt-2 flex space-x-4">
-                            <label class="flex items-center">
-                                <input type="radio" name="payment-mode" value="upi" class="form-radio h-4 w-4 text-red-600 bg-gray-700 border-gray-600 focus:ring-red-500" checked>
                                 <span class="ml-2 text-white">UPI</span>
                             </label>
                             <label class="flex items-center">
@@ -114,16 +109,8 @@
             menuItemsToShow.forEach(item => {
                 item.prices.forEach(priceInfo => {
                 const button = document.createElement('button');
+                button.className = 'bg-gray-700 hover:bg-red-600 text-white font-semibold py-3 px-2 rounded-lg text-sm flex flex-col justify-center items-center shadow-lg transition-colors duration-200';
                 
-                // Conditional background colors based on portion size
-                if (priceInfo.size === 'Half') {
-                    button.className = 'bg-sky-700 hover:bg-sky-600 text-white font-semibold py-3 px-2 rounded-lg text-sm flex flex-col justify-center items-center shadow-lg transition-colors duration-200';
-                } else if (priceInfo.size === 'Full') {
-                    button.className = 'bg-teal-700 hover:bg-teal-600 text-white font-semibold py-3 px-2 rounded-lg text-sm flex flex-col justify-center items-center shadow-lg transition-colors duration-200';
-                } else {
-                    button.className = 'bg-gray-700 hover:bg-red-600 text-white font-semibold py-3 px-2 rounded-lg text-sm flex flex-col justify-center items-center shadow-lg transition-colors duration-200';
-                }
-
                 let itemName = item.name;
                 if (priceInfo.size !== 'Standard') {
                     itemName += ` (${priceInfo.size})`;
@@ -284,15 +271,13 @@
             const customerName = document.getElementById('customer-name').value;
             const customerPhone = document.getElementById('phone-number').value;
             const paymentMode = document.querySelector('input[name="payment-mode"]:checked').value;
-            const notes = document.getElementById('order-notes').value;
 
             const orderData = {
                 items: currentOrder,
                 totalAmount: totalAmount,
                 customerName: customerName,
                 customerPhone: customerPhone,
-                paymentMode: paymentMode,
-                notes: notes
+                paymentMode: paymentMode
             };
 
             try {
@@ -316,7 +301,6 @@
                     renderOrder();
                     document.getElementById('customer-name').value = '';
                     document.getElementById('phone-number').value = '';
-                    document.getElementById('order-notes').value = '';
                 } else {
                     const errorData = await response.json();
                     console.error('Error finalizing order:', errorData);
@@ -424,13 +408,6 @@ function printReceipt(orderData) {
                 ${kitchenItemRows}
             </tbody>
         </table>
-        ${orderData.notes ? `
-            <hr class="dashed">
-            <div style="text-align: left;">
-                <h2 style="font-size: 14pt; margin: 5px 0;">**NOTE:**</h2>
-                <p style="font-size: 14pt; font-weight: bold;">${orderData.notes}</p>
-            </div>
-        ` : ''}
         </body>
     </html>
   `;

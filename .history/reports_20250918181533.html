@@ -230,18 +230,6 @@
                 cogsTotalEl.textContent = `₹${data.costOfGoodsSold.toFixed(2)}`;
                 grossProfitEl.textContent = `₹${data.grossProfit.toFixed(2)}`;
                 upiTotalEl.textContent = `₹${(data.paymentBreakdown.upi || 0).toFixed(2)}`;
-                cashTotalEl.textContent = `₹${(data.paymentBreakdown.cash || 0).toFixed(2)}`;
-
-                // Populate table
-                tableBody.innerHTML = ''; // Clear existing rows
-
-                if (data.orders.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500">No delivered orders found for the selected period.</td></tr>`;
-                    return;
-                }
-
-                data.orders.forEach(order => {
-                    const itemsSummary = order.items.map(item => `${item.quantity}x ${item.name}`).join(', ');
                     const row = `
                         <tr class="hover:bg-gray-700 clickable-row" data-order-id="${order._id}">
                             <td class="px-6 py-4 whitespace-nowrap font-medium">#${order.orderNumber}</td>

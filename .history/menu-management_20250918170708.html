@@ -94,43 +94,7 @@
                     <button type="button" id="add-price-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Add Price Option</button>
                     <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg">Save Item</button>
                 </form>
-                </div>
-
-                <!-- Recipe Editor -->
-                <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-                    <h2 class="text-2xl font-bold text-white mb-6">Recipe Editor</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="recipe-menu-item-select" class="block text-sm font-medium text-gray-400">Select Menu Item</label>
-                            <select id="recipe-menu-item-select" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-red-500 focus:border-red-500">
-                                <option>Select an item</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <h3 class="text-lg font-semibold text-white mb-2">Current Recipe</h3>
-                            <ul id="current-recipe-list" class="list-disc list-inside pl-2 text-gray-300 space-y-1">
-                                <!-- Ingredients will be listed here -->
-                            </ul>
-                        </div>
-
-                        <div id="add-ingredient-form" class="space-y-4 border-t border-gray-700 pt-4">
-                             <h3 class="text-lg font-semibold text-white">Add Ingredient to Recipe</h3>
-                            <div>
-                                <label for="recipe-ingredient-select" class="block text-sm font-medium text-gray-400">Ingredient</label>
-                                <select id="recipe-ingredient-select" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-red-500 focus:border-red-500">
-                                    <option>Select an ingredient</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="recipe-ingredient-quantity" class="block text-sm font-medium text-gray-400">Quantity</label>
-                                <input type="number" id="recipe-ingredient-quantity" placeholder="e.g., 100" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-red-500 focus:border-red-500">
-                            </div>
-                            <button id="add-to-recipe-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Add to Recipe</button>
-                        </div>
-                        
-                        <button id="save-recipe-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg mt-4">Save Recipe</button>
-                    </div>
+                    </form>
                 </div>
             </div>
 
@@ -184,15 +148,10 @@
 
     <script>
         let menuData = []; // Cache for menu data
-        let inventoryData = []; // Cache for inventory data
-        let currentRecipeIngredients = []; // Temp array for building a recipe
 
         async function fetchAndDisplayMenu() {
             const tableBody = document.getElementById('menu-table-body');
-            const recipeMenuItemSelect = document.getElementById('recipe-menu-item-select');
             tableBody.innerHTML = ''; // Clear existing menu
-            recipeMenuItemSelect.innerHTML = '<option>Select an item</option>'; // Clear and set default
-
             try {
                 const response = await fetch('/api/menu');
                 if (!response.ok) throw new Error('Failed to fetch menu');
@@ -217,38 +176,10 @@
                         </tr>
                     `;
                     tableBody.innerHTML += row;
-
-                    // Populate recipe dropdown
-                    item.prices.forEach(p => {
-                        const option = document.createElement('option');
-                        option.value = item._id; // We use the main item ID
-                        option.dataset.size = p.size; // Store size for context
-                        option.textContent = `${item.name} (${p.size})`;
-                        recipeMenuItemSelect.appendChild(option);
-                    });
                 });
             } catch (error) {
                 console.error('Error fetching menu:', error);
                 tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">Error loading menu.</td></tr>';
-            }
-        }
-
-        async function fetchInventoryItems() {
-            const ingredientSelect = document.getElementById('recipe-ingredient-select');
-            ingredientSelect.innerHTML = '<option>Select an ingredient</option>';
-            try {
-                const response = await fetch('/api/inventory');
-                if (!response.ok) throw new Error('Failed to fetch inventory');
-                inventoryData = await response.json();
-
-                inventoryData.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item._id;
-                    option.textContent = `${item.name} (${item.unit})`;
-                    ingredientSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error fetching inventory:', error);
             }
         }
 
@@ -415,135 +346,9 @@
         }
 
         // Initial calls
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchAndDisplayMenu();
-            fetchInventoryItems();
-        });
+        document.addEventListener('DOMContentLoaded', fetchAndDisplayMenu);
         updateTime();
         setInterval(updateTime, 1000);
-
-        // --- Recipe Editor Logic ---
-        const recipeMenuItemSelect = document.getElementById('recipe-menu-item-select');
-        const currentRecipeList = document.getElementById('current-recipe-list');
-        
-        recipeMenuItemSelect.addEventListener('change', async (event) => {
-            const menuItemId = event.target.value;
-            currentRecipeList.innerHTML = '';
-            currentRecipeIngredients = [];
-
-            if (!menuItemId || menuItemId === 'Select an item') return;
-
-            try {
-                const response = await fetch(`/api/recipes/${menuItemId}`);
-                if (response.ok) {
-                    const recipe = await response.json();
-                    if (recipe && recipe.ingredients) {
-                        currentRecipeIngredients = recipe.ingredients.map(ing => ({
-                            ingredient: ing.ingredient._id, // Store ID
-                            name: ing.ingredient.name,
-                            quantity: ing.quantity,
-                            unit: ing.ingredient.unit
-                        }));
-                        displayCurrentRecipe();
-                    }
-                } else if (response.status !== 404) { // Handle errors other than 'not found'
-                    throw new Error('Failed to fetch recipe');
-                }
-                // If 404, it just means no recipe exists yet, which is fine.
-            } catch (error) {
-                console.error('Error fetching recipe:', error);
-                alert('Could not fetch recipe.');
-            }
-        });
-
-        function displayCurrentRecipe() {
-            currentRecipeList.innerHTML = '';
-            if (currentRecipeIngredients.length === 0) {
-                currentRecipeList.innerHTML = '<li>No ingredients added yet.</li>';
-                return;
-            }
-            currentRecipeIngredients.forEach(ing => {
-                const li = document.createElement('li');
-                li.textContent = `${ing.name} - ${ing.quantity} ${ing.unit || ''}`;
-                currentRecipeList.appendChild(li);
-            });
-        }
-
-        document.getElementById('add-to-recipe-btn').addEventListener('click', () => {
-            const ingredientSelect = document.getElementById('recipe-ingredient-select');
-            const quantityInput = document.getElementById('recipe-ingredient-quantity');
-            
-            const ingredientId = ingredientSelect.value;
-            const quantity = parseFloat(quantityInput.value);
-
-            if (!ingredientId || ingredientId === 'Select an ingredient' || isNaN(quantity) || quantity <= 0) {
-                alert('Please select an ingredient and enter a valid quantity.');
-                return;
-            }
-
-            const selectedIngredient = inventoryData.find(i => i._id === ingredientId);
-            if (!selectedIngredient) {
-                alert('Selected ingredient not found.');
-                return;
-            }
-
-            // Add to temporary array
-            currentRecipeIngredients.push({
-                ingredient: ingredientId,
-                name: selectedIngredient.name,
-                quantity: quantity,
-                unit: selectedIngredient.unit
-            });
-
-            displayCurrentRecipe(); // Update UI
-            
-            // Reset inputs
-            ingredientSelect.selectedIndex = 0;
-            quantityInput.value = '';
-        });
-
-        document.getElementById('save-recipe-btn').addEventListener('click', async () => {
-            const menuItemId = recipeMenuItemSelect.value;
-
-            if (!menuItemId || menuItemId === 'Select an item') {
-                alert('Please select a menu item first.');
-                return;
-            }
-            if (currentRecipeIngredients.length === 0) {
-                alert('Cannot save an empty recipe. Please add ingredients.');
-                return;
-            }
-
-            // We only need to send the ingredient ID and quantity
-            const payload = {
-                menuItemId: menuItemId,
-                ingredients: currentRecipeIngredients.map(({ ingredient, quantity }) => ({ ingredient, quantity }))
-            };
-
-            try {
-                const response = await fetch('/api/recipes', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to save recipe');
-                }
-
-                alert('Recipe saved successfully!');
-                // Reset state
-                recipeMenuItemSelect.selectedIndex = 0;
-                currentRecipeList.innerHTML = '';
-                currentRecipeIngredients = [];
-
-            } catch (error) {
-                console.error('Error saving recipe:', error);
-                alert(`Failed to save recipe: ${error.message}`);
-            }
-        });
-
 
         // --- Bulk Price Update Logic ---
         document.getElementById('increase-prices-btn').addEventListener('click', () => handleBulkUpdate('increase'));

@@ -65,8 +65,7 @@
                 <a href="live-orders.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Live Orders</a>
                 <a href="reports.html" class="px-6 py-3 text-lg font-medium bg-red-600 text-white border-r border-gray-700">Reports</a>
                 <a href="customers.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Customers</a>
-                <a href="menu-management.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Menu Management</a>
-                <a href="inventory.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700">Inventory</a>
+                <a href="menu-management.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700">Menu Management</a>
             </div>
         </nav>
 
@@ -107,18 +106,10 @@
             </div>
 
             <!-- Stat Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
                     <h3 class="text-gray-400 text-lg font-medium">Total Revenue</h3>
                     <p id="total-revenue" class="text-4xl font-bold text-white mt-2">₹0.00</p>
-                </div>
-                <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-                    <h3 class="text-gray-400 text-lg font-medium">Cost of Goods Sold</h3>
-                    <p id="cogs-total" class="text-4xl font-bold text-white mt-2">₹0.00</p>
-                </div>
-                <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-                    <h3 class="text-gray-400 text-lg font-medium">Gross Profit</h3>
-                    <p id="gross-profit" class="text-4xl font-bold text-white mt-2">₹0.00</p>
                 </div>
                 <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
                     <h3 class="text-gray-400 text-lg font-medium">Delivered Orders</h3>
@@ -176,18 +167,12 @@
                 </div>
             </div>
         </div>
-    </div>
-
-
-    <script>
         let currentReportOrders = [];
         const reportHeading = document.getElementById('report-heading');
         const totalRevenueEl = document.getElementById('total-revenue');
         const orderCountEl = document.getElementById('order-count');
         const upiTotalEl = document.getElementById('upi-total');
         const cashTotalEl = document.getElementById('cash-total');
-        const cogsTotalEl = document.getElementById('cogs-total');
-        const grossProfitEl = document.getElementById('gross-profit');
         const tableBody = document.getElementById('report-table-body');
         const startDateInput = document.getElementById('start-date');
         const endDateInput = document.getElementById('end-date');
@@ -227,8 +212,6 @@
                 // Update stat cards
                 totalRevenueEl.textContent = `₹${data.totalRevenue.toFixed(2)}`;
                 orderCountEl.textContent = data.orderCount;
-                cogsTotalEl.textContent = `₹${data.costOfGoodsSold.toFixed(2)}`;
-                grossProfitEl.textContent = `₹${data.grossProfit.toFixed(2)}`;
                 upiTotalEl.textContent = `₹${(data.paymentBreakdown.upi || 0).toFixed(2)}`;
                 cashTotalEl.textContent = `₹${(data.paymentBreakdown.cash || 0).toFixed(2)}`;
 
@@ -333,6 +316,25 @@
         const modal = document.getElementById('order-details-modal');
         const modalCloseBtn = document.getElementById('modal-close-btn');
 
+        function showModal(order) {
+            document.getElementById('modal-order-number').textContent = order.orderNumber;
+            document.getElementById('modal-order-date').textContent = new Date(order.orderDate).toLocaleString('en-GB');
+            document.getElementById('modal-total-amount').textContent = `₹${order.totalAmount.toFixed(2)}`;
+            document.getElementById('modal-payment-mode').textContent = order.paymentMode;
+            document.getElementById('modal-customer-name').textContent = order.customer.name;
+            document.getElementById('modal-customer-phone').textContent = order.customer.phone;
+            
+            const itemsList = document.getElementById('modal-items-list');
+            itemsList.innerHTML = '';
+            order.items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = `${item.quantity}x ${item.name} - ₹${(item.price * item.quantity).toFixed(2)}`;
+                itemsList.appendChild(li);
+            });
+
+            modal.style.display = 'flex';
+        }
+
         function hideModal() {
             modal.style.display = 'none';
         }
@@ -342,44 +344,11 @@
             if (!row) return;
 
             const orderId = row.dataset.orderId;
-            const orderData = currentReportOrders.find(o => o._id === orderId);
-
-            if (!orderData) return;
-
-            // Correctly format and display the date
-            document.getElementById('modal-date').textContent = new Date(orderData.createdAt).toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' });
-
-            // Populate standard fields
-            document.getElementById('modal-order-number').textContent = `#${orderData.orderNumber}`;
-            document.getElementById('modal-total-amount').textContent = `₹${orderData.totalAmount.toFixed(2)}`;
-            document.getElementById('modal-payment-mode').textContent = orderData.paymentMode;
-
-            // Correctly display customer details with a fallback
-            const customerName = orderData.customerName || 'Walk-in Customer';
-            const customerPhone = orderData.customerPhone || 'N/A';
-            document.getElementById('modal-customer').textContent = `${customerName} (${customerPhone})`;
-
-            // Correctly generate and display the items list
-            const itemsListEl = document.getElementById('modal-items');
-            itemsListEl.innerHTML = ''; // Clear previous items
-            orderData.items.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = `${item.quantity}x ${item.name} - ₹${item.price.toFixed(2)}`;
-                itemsListEl.appendChild(li);
-            });
-
-            // Correctly display the notes, but only if they exist
-            const notesContainer = document.getElementById('modal-notes-container');
-            const notesContent = document.getElementById('modal-notes');
-            if (orderData.notes && orderData.notes.trim() !== '') {
-                notesContent.textContent = orderData.notes;
-                notesContainer.style.display = 'block'; // Show the notes section
-            } else {
-                notesContainer.style.display = 'none'; // Hide if no notes
+            const order = currentReportOrders.find(o => o._id === orderId);
+            
+            if (order) {
+                showModal(order);
             }
-
-            // Show the modal
-            document.getElementById('order-details-modal').style.display = 'flex';
         });
 
         modalCloseBtn.addEventListener('click', hideModal);

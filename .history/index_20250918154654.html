@@ -29,8 +29,7 @@
                 <a href="live-orders.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Live Orders</a>
                 <a href="reports.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Reports</a>
                 <a href="customers.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Customers</a>
-                <a href="menu-management.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700 border-r border-gray-700">Menu Management</a>
-                <a href="inventory.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700">Inventory</a>
+                <a href="menu-management.html" class="px-6 py-3 text-lg font-medium text-gray-400 hover:bg-gray-700">Menu Management</a>
             </div>
         </nav>
 
@@ -114,16 +113,8 @@
             menuItemsToShow.forEach(item => {
                 item.prices.forEach(priceInfo => {
                 const button = document.createElement('button');
+                button.className = 'bg-gray-700 hover:bg-red-600 text-white font-semibold py-3 px-2 rounded-lg text-sm flex flex-col justify-center items-center shadow-lg transition-colors duration-200';
                 
-                // Conditional background colors based on portion size
-                if (priceInfo.size === 'Half') {
-                    button.className = 'bg-sky-700 hover:bg-sky-600 text-white font-semibold py-3 px-2 rounded-lg text-sm flex flex-col justify-center items-center shadow-lg transition-colors duration-200';
-                } else if (priceInfo.size === 'Full') {
-                    button.className = 'bg-teal-700 hover:bg-teal-600 text-white font-semibold py-3 px-2 rounded-lg text-sm flex flex-col justify-center items-center shadow-lg transition-colors duration-200';
-                } else {
-                    button.className = 'bg-gray-700 hover:bg-red-600 text-white font-semibold py-3 px-2 rounded-lg text-sm flex flex-col justify-center items-center shadow-lg transition-colors duration-200';
-                }
-
                 let itemName = item.name;
                 if (priceInfo.size !== 'Standard') {
                     itemName += ` (${priceInfo.size})`;
