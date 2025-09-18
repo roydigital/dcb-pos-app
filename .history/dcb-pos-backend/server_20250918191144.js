@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -6,10 +7,10 @@ const { Parser } = require('json2csv');
 
 // --- APP INITIALIZATION ---
 const app = express();
-const PORT = 3004; // Using a consistent port
+const PORT = process.env.PORT || 3004;
 
 // --- DATABASE CONNECTION ---
-mongoose.connect('mongodb://localhost:27017/dcb-pos')
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
   console.log('Successfully connected to MongoDB');
   seedMenuData();
@@ -214,7 +215,7 @@ app.get('/api/reports', async (req, res) => { /* ... your full, correct reports 
 
 // --- SERVER START ---
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
 
 // --- ONE-TIME DATA SEEDING & MIGRATION ---
