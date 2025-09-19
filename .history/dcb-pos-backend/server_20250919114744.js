@@ -16,8 +16,6 @@ app.use(express.json());
 
 // Serve static files from the parent directory (where index.html is)
 app.use(express.static(path.join(__dirname, '..')));
-app.use('/assets', express.static(path.join(__dirname, '../assets')));
-
 
 // API Routes
 app.use('/api', require('./routes'));

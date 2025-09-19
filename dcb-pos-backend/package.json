@@ -8,9 +8,8 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
     "express": "^4.19.2",
-    "json2csv": "^5.0.7",
-    "mongoose": "^8.18.1"
+    "mongoose": "^8.18.1",
+    "json2csv": "^5.0.7"
   }
 }

@@ -20,8 +20,6 @@ app.use('/assets', express.static(path.join(__dirname, '../assets')));
 
 
 // API Routes
-app.use('/api', require('./routes'));
-
 // A simple test route to check if the server is running
 app.get('/', (req, res) => {
   res.send('Welcome to the DCB POS Backend API!');
