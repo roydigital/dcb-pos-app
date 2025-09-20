@@ -44,7 +44,7 @@ function populateMenu(menuItemsToShow) {
 async function fetchAndDisplayMenu() {
     const menuGrid = document.getElementById('menu-grid');
     try {
-        const response = await fetch('/api/menu');
+        const response = await fetch('http://localhost:3006/api/menu');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -190,7 +190,7 @@ async function handleFinalizeBill() {
     };
 
     try {
-        const response = await fetch('/api/orders', {
+        const response = await fetch('http://localhost:3006/api/orders', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -361,7 +361,7 @@ customerNameInput.addEventListener('input', async (e) => {
     }
 
     try {
-        const response = await fetch(`/api/customers/search?q=${encodeURIComponent(searchText)}`);
+        const response = await fetch(`http://localhost:3006/api/customers/search?q=${encodeURIComponent(searchText)}`);
         if (!response.ok) {
             throw new Error('Customer search failed');
         }

@@ -33,7 +33,7 @@ async function generateReport(startDate, endDate) {
     updateHeading(startDate, endDate);
 
     try {
-        const response = await fetch(`/api/reports?startDate=${startDateStr}&endDate=${endDateStr}`);
+        const response = await fetch(`http://localhost:3006/api/reports?startDate=${startDateStr}&endDate=${endDateStr}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

@@ -1,7 +1,7 @@
 async function fetchAndDisplayOrders() {
     const grid = document.getElementById('live-orders-grid');
     try {
-        const response = await fetch('/api/orders/today');
+        const response = await fetch('http://localhost:3006/api/orders/today');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (target.classList.contains('mark-delivered-btn')) {
             try {
-                const response = await fetch(`/api/orders/${orderId}/deliver`, {
+                const response = await fetch(`http://localhost:3006/api/orders/${orderId}/deliver`, {
                     method: 'PATCH',
                 });
                 if (!response.ok) throw new Error('Failed to deliver order');
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.classList.contains('cancel-btn')) {
             if (confirm('Are you sure you want to cancel this order?')) {
                 try {
-                    const response = await fetch(`/api/orders/${orderId}/cancel`, {
+                    const response = await fetch(`http://localhost:3006/api/orders/${orderId}/cancel`, {
                         method: 'PATCH',
                     });
                     if (!response.ok) throw new Error('Failed to cancel order');

@@ -2,7 +2,7 @@ async function fetchAndDisplayCustomers() {
     const tableBody = document.getElementById('customer-table-body');
     tableBody.innerHTML = ''; // Clear existing rows
     try {
-        const response = await fetch('/api/customers');
+        const response = await fetch('http://localhost:3006/api/customers');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -43,7 +43,7 @@ function updateTime() {
 }
 
 document.getElementById('export-btn').addEventListener('click', () => {
-    window.location.href = '/api/customers/export';
+    window.location.href = 'http://localhost:3006/api/customers/export';
 });
 
 // Initial calls

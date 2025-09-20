@@ -4,7 +4,7 @@ async function fetchAndDisplayMenu() {
     const tableBody = document.getElementById('menu-table-body');
     tableBody.innerHTML = ''; // Clear existing menu
     try {
-        const response = await fetch('/api/menu');
+        const response = await fetch('http://localhost:3006/api/menu');
         if (!response.ok) throw new Error('Failed to fetch menu');
         menuData = await response.json();
 
@@ -67,7 +67,7 @@ document.getElementById('add-item-form').addEventListener('submit', async (event
     };
 
     try {
-        const response = await fetch('/api/menu', {
+        const response = await fetch('http://localhost:3006/api/menu', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(itemData)
@@ -97,7 +97,7 @@ document.getElementById('menu-table-body').addEventListener('click', async (even
     if (target.classList.contains('delete-btn')) {
         if (confirm('Are you sure you want to delete this item?')) {
             try {
-                const response = await fetch(`/api/menu/${id}`, {
+                const response = await fetch(`http://localhost:3006/api/menu/${id}`, {
                     method: 'DELETE'
                 });
                 if (!response.ok) throw new Error('Failed to delete item');
@@ -169,7 +169,7 @@ document.getElementById('edit-item-form').addEventListener('submit', async (even
     };
 
     try {
-        const response = await fetch(`/api/menu/${id}`, {
+        const response = await fetch(`http://localhost:3006/api/menu/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedData)
@@ -220,7 +220,7 @@ async function handleBulkUpdate(direction) {
     }
 
     try {
-        const response = await fetch('/api/menu/bulk-update-prices', {
+        const response = await fetch('http://localhost:3006/api/menu/bulk-update-prices', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ percentage, direction })
